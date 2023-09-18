@@ -1,0 +1,24 @@
+{
+    "name": "Java Spring boot Microservices",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "args": {
+            "VARIANT": "17",
+            "INSTALL_MAVEN": "true",
+            "INSTALL_GRADLE": "false"
+        }
+    },
+    "remoteUser": "vscode",
+    "features": {
+        //"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+    },
+    "customizations": {
+        "vscode": {
+            // Set *default* container specific settings.json values on container create.
+            "settings": {
+                "java.jdt.ls.java.home": "/docker-java-home"
+            }
+        }
+    }
+}
