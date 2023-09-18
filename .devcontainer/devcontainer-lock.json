@@ -1,5 +1,10 @@
 {
   "features": {
+    "ghcr.io/devcontainers-contrib/features/maven-sdkman:2": {
+      "version": "2.0.14",
+      "resolved": "ghcr.io/devcontainers-contrib/features/maven-sdkman@sha256:e013016e2bb3cd29fbe9c656d0160d4fae221d5763772527e1ca7c0566ae4772",
+      "integrity": "sha256:e013016e2bb3cd29fbe9c656d0160d4fae221d5763772527e1ca7c0566ae4772"
+    },
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
       "version": "1.3.0",
       "resolved": "ghcr.io/devcontainers/features/docker-outside-of-docker@sha256:4fb38c49456bc2ef0d00acd475cbf03b7d62376e6c6198a7fc3945606d69f714",
