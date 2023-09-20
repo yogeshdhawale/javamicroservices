@@ -7,4 +7,5 @@ import com.example.ec.javamicroservices.domain.TourPackage;
 
 public interface TourPackageRepo extends CrudRepository <TourPackage, String> {
     Optional<TourPackage> findByName(String name);
+    Optional<TourPackage> findByCode(String code);
 }

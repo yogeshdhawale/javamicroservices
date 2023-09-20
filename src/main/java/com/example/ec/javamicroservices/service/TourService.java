@@ -5,9 +5,8 @@ import org.springframework.stereotype.Service;
 
 import com.example.ec.javamicroservices.domain.Tour;
 import com.example.ec.javamicroservices.domain.TourDifficultyEnum;
-import com.example.ec.javamicroservices.domain.TourRegionEnum;
 import com.example.ec.javamicroservices.domain.TourPackage;
-
+import com.example.ec.javamicroservices.domain.TourRegionEnum;
 import com.example.ec.javamicroservices.repo.TourPackageRepo;
 import com.example.ec.javamicroservices.repo.TourRepo;
 
@@ -37,16 +36,13 @@ public class TourService {
             TourRegionEnum region,
             TourDifficultyEnum difficulty, String tourPackageName) {
 
+        
         TourPackage tourPackage = tourPackageRepo.findByName(tourPackageName)
-                .orElseThrow(() -> new RuntimeException("Tour Package not found"));
+                .orElseThrow(IllegalArgumentException::new);
 
-        return saveTour(
+        return tourRepo.save(
                 new Tour(title, description, price, duration, region, difficulty, tourPackage));
 
-    }
-
-    public Tour saveTour(Tour tour) {
-        return tourRepo.save(tour);
     }
 
     public long total() {

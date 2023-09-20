@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface TourRepo extends CrudRepository<Tour, Integer> {
 
     List<Tour> findByTourPackageCode(String code);
+    List<Tour> findByTourPackageName(String name);
 
     Optional<Tour> findByTitle(String title);
 

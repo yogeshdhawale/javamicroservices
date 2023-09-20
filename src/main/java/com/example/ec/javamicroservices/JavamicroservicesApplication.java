@@ -11,8 +11,10 @@ import org.springframework.context.annotation.Configuration;
 
 import com.example.ec.javamicroservices.domain.TourDifficultyEnum;
 import com.example.ec.javamicroservices.domain.TourRegionEnum;
+
 import com.example.ec.javamicroservices.service.TourPackageService;
 import com.example.ec.javamicroservices.service.TourService;
+
 import com.example.ec.javamicroservices.util.JsonTourMapper;
 
 @SpringBootApplication
@@ -42,10 +44,14 @@ public class JavamicroservicesApplication implements CommandLineRunner {
 
 	private void loadToursAtStart() throws IOException {
 
-		// createDefaultTourPackages();
-		// createDefaultSampleTours();
+		createDefaultTourPackages();
+		createDefaultSampleTours();
 
+		System.out.println("Loading from json");
 		loadToursFromJsonFile(getJsonFileName());
+
+		System.out.println("Total tour are :" + tourService.total()
+				+ " and packages are:" + tourPackageService.total());
 	}
 
 	private String getJsonFileName() {
@@ -58,18 +64,20 @@ public class JavamicroservicesApplication implements CommandLineRunner {
 		tourPackageService.createTourPackage("Tour Package 2", "TP-2");
 		tourPackageService.createTourPackage("Tour Package 3", "TP-3");
 		tourPackageService.createTourPackage("Tour Package 4", "TP-4");
+		System.out.println("Total tour packes are: " + tourPackageService.total());
 	}
 
 	private void createDefaultSampleTours() {
 		tourService.createTour("Tour 1", "Description 1", 100.0, "1 day", TourRegionEnum.Northern_California,
-				TourDifficultyEnum.EASY, "TP-1");
+				TourDifficultyEnum.EASY, "Tour Package 1");
 
 		tourService.createTour("Tour 2", "Description 2", 100.0, "1 day", TourRegionEnum.Southern_California,
-				TourDifficultyEnum.MEDIUM, "TP-2");
+				TourDifficultyEnum.MEDIUM, "Tour Package 2");
 		tourService.createTour("Tour 3", "Description 3", 100.0, "1 day", TourRegionEnum.Central_Coast,
-				TourDifficultyEnum.HARD, "TP-3");
-		tourService.createTour("Tour 4", "Description 4", 100.0, "1 day", TourRegionEnum.Varies,
-				TourDifficultyEnum.VARIES, "TP-4");
+				TourDifficultyEnum.HARD, "Tour Package 3");
+		tourService.createTour("Tour 4", "Description 1", 100.0, "1 day", TourRegionEnum.Varies,
+				TourDifficultyEnum.VARIES, "Tour Package 1");
+		System.out.println("Total tours are: " + tourService.total());
 
 	}
 
