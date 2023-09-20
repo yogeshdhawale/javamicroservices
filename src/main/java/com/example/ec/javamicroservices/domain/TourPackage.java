@@ -10,18 +10,11 @@ import jakarta.persistence.Id;
 public class TourPackage implements Serializable {
 
     @Id
+    @Column
     String code;
-
-    public String getCode() {
-        return code;
-    }
 
     @Column
     String name;
-
-    public String getName() {
-        return name;
-    }
 
     public TourPackage(String name, String code) {
         this.name = name;
@@ -30,6 +23,14 @@ public class TourPackage implements Serializable {
 
     protected TourPackage() {
 
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override
