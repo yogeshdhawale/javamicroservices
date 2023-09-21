@@ -35,12 +35,6 @@ public interface TourPackageRepo extends CrudRepository<TourPackage, String> {
 
     @Override
     @RestResource(exported = false)
-    default void deleteAllById(Iterable<? extends String> ids) {
-        throw new UnsupportedOperationException("Unimplemented method 'deleteAllById'");
-    }
-
-    @Override
-    @RestResource(exported = false)
     default void deleteById(String id) {
         throw new UnsupportedOperationException("Unimplemented method 'deleteById'");
     }

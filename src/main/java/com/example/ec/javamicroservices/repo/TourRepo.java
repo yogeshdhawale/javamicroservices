@@ -6,7 +6,6 @@ import org.springframework.data.domain.Sort;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RestResource;
 
@@ -19,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
  */
 
-public interface TourRepo extends CrudRepository<Tour, Integer>, PagingAndSortingRepository<Tour, Integer> {
+public interface TourRepo extends PagingAndSortingRepository<Tour, Integer> {
 
     // http://localhost:8080/tours/search/findByTourPackageCode?code=Backpack%20Cal&size=2&page=1
 
@@ -43,13 +42,6 @@ public interface TourRepo extends CrudRepository<Tour, Integer>, PagingAndSortin
     @RestResource(exported = false)
     default void deleteAll(Iterable<? extends Tour> entities) {
         throw new UnsupportedOperationException("Unimplemented method 'deleteAll'");
-    }
-
-    @Override
-    @RestResource(exported = false)
-
-    default void deleteAllById(Iterable<? extends Integer> ids) {
-        throw new UnsupportedOperationException("Unimplemented method 'deleteAllById'");
     }
 
     @Override
