@@ -8,7 +8,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 
 import com.example.ec.javamicroservices.domain.TourPackage;
 
-@RepositoryRestResource(collectionResourceRel = "promo", path = "promo")
+@RepositoryRestResource(collectionResourceRel = "package", path = "package")
 public interface TourPackageRepo extends CrudRepository<TourPackage, String> {
     Optional<TourPackage> findByName(String name);
 
@@ -31,12 +31,6 @@ public interface TourPackageRepo extends CrudRepository<TourPackage, String> {
     @RestResource(exported = false)
     default void deleteAll(Iterable<? extends TourPackage> entities) {
         throw new UnsupportedOperationException("Unimplemented method 'deleteAll'");
-    }
-
-    @Override
-    @RestResource(exported = false)
-    default void deleteAllById(Iterable<? extends String> ids) {
-        throw new UnsupportedOperationException("Unimplemented method 'deleteAllById'");
     }
 
     @Override
