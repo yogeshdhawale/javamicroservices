@@ -8,7 +8,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 
 import com.example.ec.javamicroservices.domain.TourPackage;
 
-@RepositoryRestResource(collectionResourceRel = "promo", path = "promo")
+@RepositoryRestResource(collectionResourceRel = "package", path = "package")
 public interface TourPackageRepo extends CrudRepository<TourPackage, String> {
     Optional<TourPackage> findByName(String name);
 

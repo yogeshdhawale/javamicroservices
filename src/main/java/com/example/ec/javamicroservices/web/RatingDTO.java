@@ -1,7 +1,6 @@
 package com.example.ec.javamicroservices.web;
 
 
-
 public class RatingDTO {
 
     // @Min(1)
@@ -20,7 +19,10 @@ public class RatingDTO {
         this.customerName = customerName;
     }
 
-    protected RatingDTO() {
+    public RatingDTO() {
+        this.score = 5;
+        this.comment = "";
+        this.customerName = "Anonymus";
     }
 
     public Integer getScore() {
