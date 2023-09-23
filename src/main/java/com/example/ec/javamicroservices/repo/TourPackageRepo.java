@@ -10,8 +10,8 @@ import com.example.ec.javamicroservices.domain.TourPackage;
 
 @RepositoryRestResource(collectionResourceRel = "package", path = "package")
 public interface TourPackageRepo extends CrudRepository<TourPackage, String> {
-    Optional<TourPackage> findByName(String name);
 
+    Optional<TourPackage> findByName(String name);
     Optional<TourPackage> findByCode(String code);
 
     @Override

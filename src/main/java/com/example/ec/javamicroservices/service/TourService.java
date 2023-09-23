@@ -1,12 +1,12 @@
 package com.example.ec.javamicroservices.service;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.ec.javamicroservices.domain.Tour;
-import com.example.ec.javamicroservices.domain.TourDifficultyEnum;
 import com.example.ec.javamicroservices.domain.TourPackage;
-import com.example.ec.javamicroservices.domain.TourRegionEnum;
 import com.example.ec.javamicroservices.repo.TourPackageRepo;
 import com.example.ec.javamicroservices.repo.TourRepo;
 
@@ -22,26 +22,19 @@ public class TourService {
     }
 
     /**
-     * 
      * @param title
-     * @param description
-     * @param price
-     * @param duration
-     * @param region
-     * @param difficulty
-     * @param tourPackageCode
-     * @return Tour Entity
+     * @param tourPackageName
+     * @param details
+     * @return
      */
-    public Tour createTour(String title, String description, Double price, String duration,
-            TourRegionEnum region,
-            TourDifficultyEnum difficulty, String tourPackageName) {
+    public Tour createTour(String title, String tourPackageName,
+            Map<String, String> details) {
 
-        
         TourPackage tourPackage = tourPackageRepo.findByName(tourPackageName)
                 .orElseThrow(IllegalArgumentException::new);
 
         return tourRepo.save(
-                new Tour(title, description, price, duration, region, difficulty, tourPackage));
+                new Tour(title, tourPackage, details));
 
     }
 

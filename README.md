@@ -31,3 +31,19 @@ http://localhost:8080/browser/index.html#/
 rm -rf ~/.m2/repository
 cd <working dir>
 mvn clean install -U
+
+
+*** mongodb
+
+replace spring data jpa with mongo
+
+docker pull mongo
+docker run -d  --name mongo-on-docker  -p 27017:27017 -p 27888:27888 -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=secret --authenticationDatabase  "appdb"  mongo
+
+
+show dbs
+show collections
+show tables
+
+---
+ ./mvnw spring-boot:build-image

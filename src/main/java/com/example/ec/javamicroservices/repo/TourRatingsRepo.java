@@ -10,19 +10,17 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import com.example.ec.javamicroservices.domain.TourRating;
-import com.example.ec.javamicroservices.domain.TourRatingPK;
 
 @RepositoryRestResource(exported = false)
-//@RepositoryRestResource(collectionResourceRel = "rating", path = "rating")
-public interface TourRatingsRepo extends CrudRepository<TourRating, TourRatingPK>, PagingAndSortingRepository<TourRating, TourRatingPK> {
+// @RepositoryRestResource(collectionResourceRel = "rating", path = "rating")
+public interface TourRatingsRepo
+        extends CrudRepository<TourRating, String>, PagingAndSortingRepository<TourRating, String> {
 
-    /*
-     * 
-     */
-    List<TourRating> findByPkTourId(Integer tourId);
-    Page<TourRating> findByPkTourId(Integer tourId, Pageable pageable);
+    List<TourRating> findByTourId(String tourId);
 
-    Optional<TourRating> findByPkTourIdAndPkCustomerName(Integer tourId, String customerName);
+    Page<TourRating> findByTourId(String tourId, Pageable pageable);
+
+    Optional<TourRating> findByTourIdAndCustomerName(String tourId, Integer customerName);
 
     Iterable<TourRating> findAll();
 }

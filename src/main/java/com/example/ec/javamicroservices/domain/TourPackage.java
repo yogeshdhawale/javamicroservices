@@ -2,18 +2,18 @@ package com.example.ec.javamicroservices.domain;
 
 import java.io.Serializable;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
+@Document
 public class TourPackage implements Serializable {
 
     @Id
-    @Column
+    @Indexed
     String code;
 
-    @Column
+    @Indexed
     String name;
 
     public TourPackage(String name, String code) {

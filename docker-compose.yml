@@ -1,0 +1,36 @@
+version: '3.3'
+services:
+
+
+  app_db:
+    image: mongo
+    container_name: mongo-on-docker
+    ports:
+      - '27017:27017'
+      - '27888:27888'
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongoadmin
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+      - MONGO_INITDB_DATABASE=appdb
+    restart: always
+    logging:
+      options:
+        max-size: 1g
+    networks:
+      - javamicroservices_default
+
+  java_app:
+    container_name: java_app
+    build:
+      context: ./
+    ports:
+      - '8080:8080'
+    networks:
+      - javamicroservices_default
+    restart: always
+    depends_on:
+      - app_db
+
+networks:
+  javamicroservices_default:
+    driver: bridge

@@ -4,8 +4,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 
-import com.example.ec.javamicroservices.domain.TourDifficultyEnum;
-import com.example.ec.javamicroservices.domain.TourRegionEnum;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -14,55 +14,36 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JsonTourMapper {
 
-	private String packageType, title, blurb, description, bullets, difficulty, length, price, region, keywords;
+	private String title, packageName;
+	Map<String, String> details;
 
-	public List<JsonTourMapper> read(String fileName) throws IOException {
-
-		return new ObjectMapper().setVisibility(PropertyAccessor.FIELD, Visibility.ANY)
-				.readValue(new FileInputStream(fileName), new TypeReference<List<JsonTourMapper>>() {
-				});
+	public static List<JsonTourMapper> read(String fileToImport) throws IOException {
+		List<Map<String, String>> records = new ObjectMapper().setVisibility(PropertyAccessor.FIELD, Visibility.ANY)
+				.readValue(
+						new FileInputStream(fileToImport),
+						new TypeReference<List<Map<String, String>>>() {
+						});
+		return records.stream().map(JsonTourMapper::new)
+				.collect(Collectors.toList());
 	}
 
-	public JsonTourMapper() {
+	public JsonTourMapper(Map<String, String> record) {
+		this.title = record.get("title");
+		this.packageName = record.get("packageType");
+		this.details = record;
+		this.details.remove("packageType");
+		this.details.remove("title");
 	}
 
-	public String getPackageType() {
-		return packageType;
+	public String getPackageName() {
+		return packageName;
 	}
 
 	public String getTitle() {
 		return title;
 	}
 
-	public String getBlurb() {
-		return blurb;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public String getBullets() {
-		return bullets;
-	}
-
-	public TourDifficultyEnum getDifficulty() {
-		return TourDifficultyEnum.findByLabel(difficulty);
-	}
-
-	public String getDuration() {
-		return length;
-	}
-
-	public Double getPrice() {
-		return Double.valueOf(price);
-	}
-
-	public TourRegionEnum getRegion() {
-		return TourRegionEnum.findByLabel(region);
-	}
-
-	public String getKeywords() {
-		return keywords;
+	public Map<String, String> getDetails() {
+		return details;
 	}
 }

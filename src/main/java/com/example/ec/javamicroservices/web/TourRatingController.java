@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 
@@ -16,14 +18,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.example.ec.javamicroservices.domain.Tour;
 import com.example.ec.javamicroservices.domain.TourRating;
-import com.example.ec.javamicroservices.domain.TourRatingPK;
 import com.example.ec.javamicroservices.service.TourRatingService;
 
 @RestController
 @RequestMapping(path = "/tours/{tourId}/ratings")
-public class TourRatingController{
+public class TourRatingController {
 
     TourRatingService tourRatingService;
 
@@ -45,24 +45,29 @@ public class TourRatingController{
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createTourRating(
-            @PathVariable(value = "tourId") int tourId,
+            @PathVariable(value = "tourId") String tourId,
             @RequestBody @Validated RatingDTO obj) {
 
-        Tour tour = tourRatingService.getTourObj(tourId);
-        TourRatingPK pk = new TourRatingPK(tour, obj.getCustomerName());
-        TourRating tRating = new TourRating(pk, obj.getScore(), obj.getComment());
+        tourRatingService.getTourObj(tourId);
+        TourRating tRating = new TourRating(tourId, obj.getCustomerName(), obj.getScore(), obj.getComment());
 
         tourRatingService.save(tRating);
     }
 
-    @GetMapping(path="/average")
-    @ResponseStatus(HttpStatus.OK)
-    public Map<String, Double> getAvgRating(@PathVariable(value = "tourId") int tourId) {
+    @GetMapping
+    public Page<TourRating> getRatings(@PathVariable(value = "tourId") String tourId,
+            Pageable pageable) {
+        return tourRatingService.getTourRatings(tourId, pageable);
+    }
 
-        Tour tour = tourRatingService.getTourObj(tourId);
+    @GetMapping(path = "/average")
+    @ResponseStatus(HttpStatus.OK)
+    public Map<String, Double> getAvgRating(@PathVariable(value = "tourId") String tourId) {
+
+        tourRatingService.getTourObj(tourId);
 
         return Map.of("average",
-                tourRatingService.findTourRatings(tour.getId()).stream()
+                tourRatingService.getTourRatings(tourId).stream()
                         .mapToInt(TourRating::getScore).average()
                         .orElseThrow(() -> new NoSuchElementException("No ratings found")));
     }

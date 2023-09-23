@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import org.springframework.stereotype.Service;
 
-import com.example.ec.javamicroservices.domain.Tour;
 import com.example.ec.javamicroservices.domain.TourRating;
 import com.example.ec.javamicroservices.repo.TourRatingsRepo;
 import com.example.ec.javamicroservices.repo.TourRepo;
@@ -22,18 +24,23 @@ public class TourRatingService {
         this.tourRepo = tourRepo;
     }
 
-    public Tour getTourObj(int tourId) throws NoSuchElementException {
-        return tourRepo.findById(tourId)
-                .orElseThrow(() -> new NoSuchElementException("Does not exists" + tourId));
+    public void getTourObj(String tourId) throws NoSuchElementException {
+
+        if (!tourRepo.existsById(tourId)) {
+            throw new NoSuchElementException("Does not exists" + tourId);
+        }
     }
 
     public void save(TourRating tourRating) {
         ratingsRepo.save(tourRating);
     }
 
-    public List<TourRating> findTourRatings(int tourId) {
+    public List<TourRating> getTourRatings(String tourId) {
+        return ratingsRepo.findByTourId(tourId);
+    }
 
-        return ratingsRepo.findByPkTourId(tourId);
+    public Page<TourRating> getTourRatings(String tourId, Pageable pagable) {
+        return ratingsRepo.findByTourId(tourId, pagable);
     }
 
 }
