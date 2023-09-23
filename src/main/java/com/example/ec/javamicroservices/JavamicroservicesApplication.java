@@ -3,6 +3,8 @@ package com.example.ec.javamicroservices;
 import java.io.IOException;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -24,6 +26,7 @@ import com.example.ec.javamicroservices.web.TourRatingController;
 @SpringBootApplication
 @Configuration("ApplicationProperties")
 public class JavamicroservicesApplication implements CommandLineRunner {
+	private static final Logger LOGGER = LoggerFactory.getLogger(JavamicroservicesApplication.class);
 
 	@Autowired
 	private TourService tourService;
@@ -48,6 +51,7 @@ public class JavamicroservicesApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 
+		LOGGER.info("*** Staring application ...");
 		// tourRatingController = new TourRatingController(tourRatingService);
 		loadToursAtStart();
 
@@ -59,10 +63,10 @@ public class JavamicroservicesApplication implements CommandLineRunner {
 		createDefaultSampleTours();
 		createDefaultSampleRatings();
 
-		System.out.println("Loading from json");
+		LOGGER.info("Loading from json");
 		loadToursFromJsonFile(getJsonFileName());
 
-		System.out.println("Total tour are :" + tourService.total()
+		LOGGER.info("Total tour are :" + tourService.total()
 				+ " and packages are:" + tourPackageService.total());
 	}
 
@@ -76,7 +80,7 @@ public class JavamicroservicesApplication implements CommandLineRunner {
 		tourPackageService.createTourPackage("Tour Package 2", "TP-2");
 		tourPackageService.createTourPackage("Tour Package 3", "TP-3");
 		tourPackageService.createTourPackage("Tour Package 4", "TP-4");
-		System.out.println("Total tour packes are: " + tourPackageService.total());
+		LOGGER.info("Total tour packes are: " + tourPackageService.total());
 	}
 
 	private void createDefaultSampleTours() {
@@ -90,7 +94,7 @@ public class JavamicroservicesApplication implements CommandLineRunner {
 		tourService.createTour("Tour 4", "Tour package 1",
 				Map.of("region", "South_California", "difficulty", "Varies"));
 
-		System.out.println("Total tours are: " + tourService.total());
+		LOGGER.info("Total tours are: " + tourService.total());
 
 	}
 
@@ -105,8 +109,8 @@ public class JavamicroservicesApplication implements CommandLineRunner {
 		RatingDTO obj = new RatingDTO(2, "comment dto", "DTOName");
 		tourRatingController.createTourRating(tour.getId(), obj);
 
-		System.out.println("Added comments for tourId:" + tour.getId() + " name:" + tour.getTourPackageName());
-		System.out.println("Avg rating is : " + tourRatingController.getAvgRating(tour.getId()));
+		LOGGER.info("Added comments for tourId:" + tour.getId() + " name:" + tour.getTourPackageName());
+		LOGGER.info("Avg rating is : " + tourRatingController.getAvgRating(tour.getId()));
 	}
 
 	public void loadToursFromJsonFile(String filename) throws IOException {

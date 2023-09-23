@@ -1,0 +1,500 @@
+diff --git a/pom.xml b/pom.xml
+index 79e2c09..c5c25f1 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -49,18 +49,6 @@
+ 			<scope>test</scope>
+ 		</dependency>
+ 
+-		<dependency>
+-			<groupId>org.springframework.data</groupId>
+-			<artifactId>spring-data-commons</artifactId>
+-			<version>2.1.10.RELEASE</version>
+-		</dependency>
+-
+-		<!-- https://mvnrepository.com/artifact/org.springframework/spring-webmvc -->
+-		<dependency>
+-			<groupId>org.springframework</groupId>
+-			<artifactId>spring-webmvc</artifactId>
+-			<version>6.0.12</version>
+-		</dependency>
+ 	</dependencies>
+ 
+ 	<build>
+diff --git a/src/main/java/com/example/ec/javamicroservices/JavamicroservicesApplication.java b/src/main/java/com/example/ec/javamicroservices/JavamicroservicesApplication.java
+index cd5d65d..1f40193 100644
+--- a/src/main/java/com/example/ec/javamicroservices/JavamicroservicesApplication.java
++++ b/src/main/java/com/example/ec/javamicroservices/JavamicroservicesApplication.java
+@@ -9,13 +9,19 @@ import org.springframework.boot.SpringApplication;
+ import org.springframework.boot.autoconfigure.SpringBootApplication;
+ import org.springframework.context.annotation.Configuration;
+ 
++import com.example.ec.javamicroservices.domain.Tour;
+ import com.example.ec.javamicroservices.domain.TourDifficultyEnum;
++import com.example.ec.javamicroservices.domain.TourRating;
++import com.example.ec.javamicroservices.domain.TourRatingPK;
+ import com.example.ec.javamicroservices.domain.TourRegionEnum;
+ 
+ import com.example.ec.javamicroservices.service.TourPackageService;
++import com.example.ec.javamicroservices.service.TourRatingService;
+ import com.example.ec.javamicroservices.service.TourService;
+ 
+ import com.example.ec.javamicroservices.util.JsonTourMapper;
++import com.example.ec.javamicroservices.web.RatingDTO;
++import com.example.ec.javamicroservices.web.TourRatingController;
+ 
+ @SpringBootApplication
+ @Configuration("ApplicationProperties")
+@@ -27,6 +33,12 @@ public class JavamicroservicesApplication implements CommandLineRunner {
+ 	@Autowired
+ 	private TourPackageService tourPackageService;
+ 
++	@Autowired
++	private TourRatingService tourRatingService;
++
++	@Autowired
++	TourRatingController tourRatingController;
++
+ 	@Value("${caltourinfo}")
+ 	private String caltourinfo;
+ 
+@@ -38,6 +50,7 @@ public class JavamicroservicesApplication implements CommandLineRunner {
+ 	@Override
+ 	public void run(String... args) throws Exception {
+ 
++		// tourRatingController = new TourRatingController(tourRatingService);
+ 		loadToursAtStart();
+ 
+ 	}
+@@ -46,6 +59,7 @@ public class JavamicroservicesApplication implements CommandLineRunner {
+ 
+ 		createDefaultTourPackages();
+ 		createDefaultSampleTours();
++		createDefaultSampleRatings();
+ 
+ 		System.out.println("Loading from json");
+ 		loadToursFromJsonFile(getJsonFileName());
+@@ -81,6 +95,21 @@ public class JavamicroservicesApplication implements CommandLineRunner {
+ 
+ 	}
+ 
++	private void createDefaultSampleRatings() {
++
++		Tour tour = tourService.createTour("RatingTour", "RatingTour", 100.0, "infinite",
++				TourRegionEnum.Central_Coast, TourDifficultyEnum.HARD, "Tour Package 1");
++
++		TourRating rating = new TourRating(new TourRatingPK(tour, "User1"), 3, "first review comment");
++		tourRatingService.save(rating);
++
++		RatingDTO obj = new RatingDTO(2, "comment dto", "DTOName");
++		tourRatingController.createTourRating(tour.getId(), obj);
++
++		System.out.println("Added comments for tourId:" + tour.getId() + " name:" + tour.getTitle());
++		System.out.println("Avg rating is : " + tourRatingController.getAvgRating(tour.getId()));
++	}
++
+ 	public void loadToursFromJsonFile(String filename) throws IOException {
+ 
+ 		JsonTourMapper mapper = new JsonTourMapper();
+diff --git a/src/main/java/com/example/ec/javamicroservices/domain/TourRating.java b/src/main/java/com/example/ec/javamicroservices/domain/TourRating.java
+index 79a22ce..8cc124a 100644
+--- a/src/main/java/com/example/ec/javamicroservices/domain/TourRating.java
++++ b/src/main/java/com/example/ec/javamicroservices/domain/TourRating.java
+@@ -11,12 +11,24 @@ public class TourRating implements Serializable {
+     @EmbeddedId
+     private TourRatingPK pk;
+ 
++    public TourRatingPK getPk() {
++        return pk;
++    }
++
+     @Column
+     private Integer score = 3;
+ 
++    public Integer getScore() {
++        return score;
++    }
++
+     @Column
+     private String reviewComment;
+ 
++    public String getReviewComment() {
++        return reviewComment;
++    }
++
+     public TourRating(TourRatingPK pk, Integer score, String reviewComment) {
+         this.pk = pk;
+         this.score = score;
+@@ -26,4 +38,47 @@ public class TourRating implements Serializable {
+     protected TourRating() {
+ 
+     }
++
++    @Override
++    public String toString() {
++        return "TourRating [pk=" + pk + ", score=" + score + ", reviewComment=" + reviewComment + "]";
++    }
++
++    @Override
++    public int hashCode() {
++        final int prime = 31;
++        int result = 1;
++        result = prime * result + ((pk == null) ? 0 : pk.hashCode());
++        result = prime * result + ((score == null) ? 0 : score.hashCode());
++        result = prime * result + ((reviewComment == null) ? 0 : reviewComment.hashCode());
++        return result;
++    }
++
++    @Override
++    public boolean equals(Object obj) {
++        if (this == obj)
++            return true;
++        if (obj == null)
++            return false;
++        if (getClass() != obj.getClass())
++            return false;
++        TourRating other = (TourRating) obj;
++        if (pk == null) {
++            if (other.pk != null)
++                return false;
++        } else if (!pk.equals(other.pk))
++            return false;
++        if (score == null) {
++            if (other.score != null)
++                return false;
++        } else if (!score.equals(other.score))
++            return false;
++        if (reviewComment == null) {
++            if (other.reviewComment != null)
++                return false;
++        } else if (!reviewComment.equals(other.reviewComment))
++            return false;
++        return true;
++    }
++
+ }
+diff --git a/src/main/java/com/example/ec/javamicroservices/domain/TourRatingPK.java b/src/main/java/com/example/ec/javamicroservices/domain/TourRatingPK.java
+index dd18f5c..97d1b78 100644
+--- a/src/main/java/com/example/ec/javamicroservices/domain/TourRatingPK.java
++++ b/src/main/java/com/example/ec/javamicroservices/domain/TourRatingPK.java
+@@ -12,16 +12,60 @@ public class TourRatingPK implements Serializable {
+     @ManyToOne
+     private Tour tour;
+ 
++    public Tour getTour() {
++        return tour;
++    }
++
+     @Column(updatable = false, nullable = false)
+     private String customerName;
+ 
++    public String getCustomerName() {
++        return customerName;
++    }
++
+     public TourRatingPK(Tour tour, String customerName) {
+         this.tour = tour;
+         this.customerName = customerName;
+     }
+ 
+     protected TourRatingPK() {
+-        
++
+     }
+ 
++
++    @Override
++    public int hashCode() {
++        final int prime = 31;
++        int result = 1;
++        result = prime * result + ((tour == null) ? 0 : tour.hashCode());
++        result = prime * result + ((customerName == null) ? 0 : customerName.hashCode());
++        return result;
++    }
++
++    @Override
++    public boolean equals(Object obj) {
++        if (this == obj)
++            return true;
++        if (obj == null)
++            return false;
++        if (getClass() != obj.getClass())
++            return false;
++        TourRatingPK other = (TourRatingPK) obj;
++        if (tour == null) {
++            if (other.tour != null)
++                return false;
++        } else if (!tour.equals(other.tour))
++            return false;
++        if (customerName == null) {
++            if (other.customerName != null)
++                return false;
++        } else if (!customerName.equals(other.customerName))
++            return false;
++        return true;
++    }
++
++    @Override
++    public String toString() {
++        return "TourRatingPK [tour=" + tour + ", customerName=" + customerName + "]";
++    }
+ }
+diff --git a/src/main/java/com/example/ec/javamicroservices/repo/TourPackageRepo.java b/src/main/java/com/example/ec/javamicroservices/repo/TourPackageRepo.java
+index ebaee13..530aab9 100644
+--- a/src/main/java/com/example/ec/javamicroservices/repo/TourPackageRepo.java
++++ b/src/main/java/com/example/ec/javamicroservices/repo/TourPackageRepo.java
+@@ -8,7 +8,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
+ 
+ import com.example.ec.javamicroservices.domain.TourPackage;
+ 
+-@RepositoryRestResource(collectionResourceRel = "promo", path = "promo")
++@RepositoryRestResource(collectionResourceRel = "package", path = "package")
+ public interface TourPackageRepo extends CrudRepository<TourPackage, String> {
+     Optional<TourPackage> findByName(String name);
+ 
+diff --git a/src/main/java/com/example/ec/javamicroservices/repo/TourRatingsRepo.java b/src/main/java/com/example/ec/javamicroservices/repo/TourRatingsRepo.java
+index 3c808aa..75c072d 100644
+--- a/src/main/java/com/example/ec/javamicroservices/repo/TourRatingsRepo.java
++++ b/src/main/java/com/example/ec/javamicroservices/repo/TourRatingsRepo.java
+@@ -3,20 +3,26 @@ package com.example.ec.javamicroservices.repo;
+ import java.util.List;
+ import java.util.Optional;
+ 
++import org.springframework.data.domain.Page;
++import org.springframework.data.domain.Pageable;
+ import org.springframework.data.repository.CrudRepository;
++import org.springframework.data.repository.PagingAndSortingRepository;
+ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+ 
+ import com.example.ec.javamicroservices.domain.TourRating;
+ import com.example.ec.javamicroservices.domain.TourRatingPK;
+ 
+ @RepositoryRestResource(exported = false)
+-public interface TourRatingsRepo extends CrudRepository<TourRating, TourRatingPK> {
++//@RepositoryRestResource(collectionResourceRel = "rating", path = "rating")
++public interface TourRatingsRepo extends CrudRepository<TourRating, TourRatingPK>, PagingAndSortingRepository<TourRating, TourRatingPK> {
+ 
+     /*
+      * 
+      */
+-    List<TourRating> findByPKTourId(Integer tourId);
++    List<TourRating> findByPkTourId(Integer tourId);
++    Page<TourRating> findByPkTourId(Integer tourId, Pageable pageable);
+ 
+-    Optional<TourRating> findByPKTourIdAndPKCustomerName(Integer tourId, String customerName);
++    Optional<TourRating> findByPkTourIdAndPkCustomerName(Integer tourId, String customerName);
+ 
++    Iterable<TourRating> findAll();
+ }
+diff --git a/src/main/java/com/example/ec/javamicroservices/repo/TourRepo.java b/src/main/java/com/example/ec/javamicroservices/repo/TourRepo.java
+index 19fd564..795851d 100644
+--- a/src/main/java/com/example/ec/javamicroservices/repo/TourRepo.java
++++ b/src/main/java/com/example/ec/javamicroservices/repo/TourRepo.java
+@@ -6,7 +6,9 @@ import org.springframework.data.domain.Sort;
+ import java.util.Optional;
+ 
+ import org.springframework.data.domain.Page;
++import org.springframework.data.repository.CrudRepository;
+ import org.springframework.data.repository.PagingAndSortingRepository;
++import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+ import org.springframework.data.rest.core.annotation.RestResource;
+ 
+ import com.example.ec.javamicroservices.domain.Tour;
+@@ -18,67 +20,17 @@ import java.util.List;
+ import java.util.Optional;
+  */
+ 
+-public interface TourRepo extends PagingAndSortingRepository<Tour, Integer> {
++@RepositoryRestResource(collectionResourceRel = "tour", path = "tour")
++public interface TourRepo extends CrudRepository<Tour, Integer>,  PagingAndSortingRepository<Tour, Integer> {
+ 
+     // http://localhost:8080/tours/search/findByTourPackageCode?code=Backpack%20Cal&size=2&page=1
+ 
++    Optional<Tour> findById(int tourId);
++
+     Page<Tour> findByTourPackageCode(String code, Pageable pagable);
+ 
+     Page<Tour> findByTourPackageName(String name, Pageable pagable);
+ 
+-    @Override
+-    @RestResource(exported = false)
+-    default void delete(Tour entity) {
+-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+-    }
+-
+-    @Override
+-    @RestResource(exported = false)
+-    default void deleteAll() {
+-        throw new UnsupportedOperationException("Unimplemented method 'deleteAll'");
+-    }
+-
+-    @Override
+-    @RestResource(exported = false)
+-    default void deleteAll(Iterable<? extends Tour> entities) {
+-        throw new UnsupportedOperationException("Unimplemented method 'deleteAll'");
+-    }
+-
+-    @Override
+-    @RestResource(exported = false)
+-
+-    default void deleteById(Integer id) {
+-        throw new UnsupportedOperationException("Unimplemented method 'deleteById'");
+-    }
+-
+-    @Override
+-    @RestResource(exported = false)
+-
+-    default boolean existsById(Integer id) {
+-        throw new UnsupportedOperationException("Unimplemented method 'existsById'");
+-    }
+-
+-    @Override
+-    @RestResource(exported = false)
+-
+-    default Iterable<Tour> findAllById(Iterable<Integer> ids) {
+-        throw new UnsupportedOperationException("Unimplemented method 'findAllById'");
+-    }
+-
+-    @Override
+-    @RestResource(exported = false)
+-
+-    default Optional<Tour> findById(Integer id) {
+-        throw new UnsupportedOperationException("Unimplemented method 'findById'");
+-    }
+-
+-    @Override
+-    @RestResource(exported = false)
+-
+-    default <S extends Tour> Iterable<S> saveAll(Iterable<S> entities) {
+-        throw new UnsupportedOperationException("Unimplemented method 'saveAll'");
+-    }
+-
+     @Override
+     @RestResource(exported = false)
+ 
+diff --git a/src/main/java/com/example/ec/javamicroservices/service/TourRatingService.java b/src/main/java/com/example/ec/javamicroservices/service/TourRatingService.java
+index bde74d1..48b4fab 100644
+--- a/src/main/java/com/example/ec/javamicroservices/service/TourRatingService.java
++++ b/src/main/java/com/example/ec/javamicroservices/service/TourRatingService.java
+@@ -1,7 +1,9 @@
+ package com.example.ec.javamicroservices.service;
+ 
++import java.util.List;
+ import java.util.NoSuchElementException;
+ 
++import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Service;
+ 
+ import com.example.ec.javamicroservices.domain.Tour;
+@@ -14,6 +16,7 @@ public class TourRatingService {
+     private TourRatingsRepo ratingsRepo;
+     private TourRepo tourRepo;
+ 
++    @Autowired
+     public TourRatingService(TourRatingsRepo tourRatingsRepo, TourRepo tourRepo) {
+         this.ratingsRepo = tourRatingsRepo;
+         this.tourRepo = tourRepo;
+@@ -27,4 +30,10 @@ public class TourRatingService {
+     public void save(TourRating tourRating) {
+         ratingsRepo.save(tourRating);
+     }
++
++    public List<TourRating> findTourRatings(int tourId) {
++
++        return ratingsRepo.findByPkTourId(tourId);
++    }
++
+ }
+diff --git a/src/main/java/com/example/ec/javamicroservices/web/RatingDTO.java b/src/main/java/com/example/ec/javamicroservices/web/RatingDTO.java
+index 997f174..5f29643 100644
+--- a/src/main/java/com/example/ec/javamicroservices/web/RatingDTO.java
++++ b/src/main/java/com/example/ec/javamicroservices/web/RatingDTO.java
+@@ -1,7 +1,6 @@
+ package com.example.ec.javamicroservices.web;
+ 
+ 
+-
+ public class RatingDTO {
+ 
+     // @Min(1)
+@@ -20,7 +19,10 @@ public class RatingDTO {
+         this.customerName = customerName;
+     }
+ 
+-    protected RatingDTO() {
++    public RatingDTO() {
++        this.score = 5;
++        this.comment = "";
++        this.customerName = "Anonymus";
+     }
+ 
+     public Integer getScore() {
+diff --git a/src/main/java/com/example/ec/javamicroservices/web/TourRatingController.java b/src/main/java/com/example/ec/javamicroservices/web/TourRatingController.java
+index af82b8a..9ef09e7 100644
+--- a/src/main/java/com/example/ec/javamicroservices/web/TourRatingController.java
++++ b/src/main/java/com/example/ec/javamicroservices/web/TourRatingController.java
+@@ -1,5 +1,6 @@
+ package com.example.ec.javamicroservices.web;
+ 
++import java.util.Map;
+ import java.util.NoSuchElementException;
+ 
+ import org.springframework.beans.factory.annotation.Autowired;
+@@ -8,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
+ 
+ import org.springframework.web.bind.annotation.RestController;
+ import org.springframework.web.bind.annotation.ExceptionHandler;
++import org.springframework.web.bind.annotation.GetMapping;
+ import org.springframework.web.bind.annotation.PathVariable;
+ import org.springframework.web.bind.annotation.PostMapping;
+ import org.springframework.web.bind.annotation.RequestBody;
+@@ -17,19 +19,17 @@ import org.springframework.web.bind.annotation.ResponseStatus;
+ import com.example.ec.javamicroservices.domain.Tour;
+ import com.example.ec.javamicroservices.domain.TourRating;
+ import com.example.ec.javamicroservices.domain.TourRatingPK;
+-import com.example.ec.javamicroservices.repo.TourRatingsRepo;
+-import com.example.ec.javamicroservices.repo.TourRepo;
+ import com.example.ec.javamicroservices.service.TourRatingService;
+ 
+ @RestController
+ @RequestMapping(path = "/tours/{tourId}/ratings")
+-public class TourRatingController {
++public class TourRatingController{
+ 
+-    TourRatingService ratingService;
++    TourRatingService tourRatingService;
+ 
+     @Autowired
+-    public TourRatingController(TourRatingsRepo tourRatingsRepo, TourRepo tourRepo) {
+-        ratingService = new TourRatingService(tourRatingsRepo, tourRepo);
++    public TourRatingController(TourRatingService service) {
++        tourRatingService = service;
+     }
+ 
+     protected TourRatingController() {
+@@ -48,10 +48,23 @@ public class TourRatingController {
+             @PathVariable(value = "tourId") int tourId,
+             @RequestBody @Validated RatingDTO obj) {
+ 
+-        Tour tour = ratingService.getTourObj(tourId);
++        Tour tour = tourRatingService.getTourObj(tourId);
+         TourRatingPK pk = new TourRatingPK(tour, obj.getCustomerName());
+         TourRating tRating = new TourRating(pk, obj.getScore(), obj.getComment());
+ 
+-        ratingService.save(tRating);
++        tourRatingService.save(tRating);
+     }
++
++    @GetMapping(path="/average")
++    @ResponseStatus(HttpStatus.OK)
++    public Map<String, Double> getAvgRating(@PathVariable(value = "tourId") int tourId) {
++
++        Tour tour = tourRatingService.getTourObj(tourId);
++
++        return Map.of("average",
++                tourRatingService.findTourRatings(tour.getId()).stream()
++                        .mapToInt(TourRating::getScore).average()
++                        .orElseThrow(() -> new NoSuchElementException("No ratings found")));
++    }
++
+ }

@@ -46,4 +46,7 @@ show collections
 show tables
 
 ---
+build and release
+
+
  ./mvnw spring-boot:build-image

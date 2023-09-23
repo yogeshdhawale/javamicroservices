@@ -3,6 +3,8 @@ package com.example.ec.javamicroservices.web;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +27,7 @@ import com.example.ec.javamicroservices.service.TourRatingService;
 @RequestMapping(path = "/tours/{tourId}/ratings")
 public class TourRatingController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TourRatingController.class);
     TourRatingService tourRatingService;
 
     @Autowired
@@ -64,8 +67,9 @@ public class TourRatingController {
     @ResponseStatus(HttpStatus.OK)
     public Map<String, Double> getAvgRating(@PathVariable(value = "tourId") String tourId) {
 
-        tourRatingService.getTourObj(tourId);
+        LOGGER.debug(">> GET /average/" + tourId);
 
+        tourRatingService.getTourObj(tourId);
         return Map.of("average",
                 tourRatingService.getTourRatings(tourId).stream()
                         .mapToInt(TourRating::getScore).average()
