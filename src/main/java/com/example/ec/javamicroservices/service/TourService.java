@@ -31,7 +31,7 @@ public class TourService {
             Map<String, String> details) {
 
         TourPackage tourPackage = tourPackageRepo.findByName(tourPackageName)
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(() -> new IllegalArgumentException("create tour failed"));
 
         return tourRepo.save(
                 new Tour(title, tourPackage, details));

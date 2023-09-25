@@ -45,8 +45,30 @@ show dbs
 show collections
 show tables
 
+docker-compose -f docker-compose-mongo.yml  up app_db -d
+
+*** mysql
+docker run --detach --name mysql_db -p 3306:3306 -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_DATABASE=app_db -e MYSQL_USER=admin -e MYSQL_PASSWORD=admin -d mysql
+
+
 ---
 build and release
 
+application run:
+	./mvnw spring-boot:run
+build docker image
+	./mvnw spring-boot:build-image -DskipTests=true
+		docker.io/library/javamicroservices:0.0.1-SNAPSHOT
+	./mvnw spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.imageName=myapp_jms:latest
 
- ./mvnw spring-boot:build-image
+mvn package -DskipTests=true
+mvn package -DskipTests=true docker:build - needs plugin docker-maven-plugin
+
+
+Dockerfile
+	FROM openjdk:8-jdk-alpine
+	VOLUME /workspaces/javamicroservices
+	ADD target/javamicroservices-0.0.1-SNAPSHOT.jar app.jar
+	EXPOSE 8080
+	ENTRYPOINT ["java", "-jar","/app.jar"]
+docker build -t java_ms_app . 
